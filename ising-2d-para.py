@@ -85,8 +85,7 @@ def mcrun(walker,steps,seed):
 #################################################################
 gpts = 30 #temp grid
 N = 16 #lattice sites
-steps = 12500 #time steps/thrd
-wait = 1 #time between checking moves
+steps = 56250 #time steps/thrd
 thrds = 8
 
 temps = np.linspace(1.5,4.5,gpts)
@@ -104,6 +103,7 @@ for j in range(gpts):
 
    pool = Pool(processes=thrds)
  
+   #initialize the parallel processes
    results = [pool.apply_async(mcrun,args=(lattice,steps,os.getpid())) for n in range(thrds)]
 
    for result in results:
@@ -112,8 +112,8 @@ for j in range(gpts):
 
       etemp, mtemp = output[0],output[1]
 
-      energies[j] += np.mean(etemp[6750:])
-      magnetzn[j] += np.abs(np.mean(mtemp[6750:]))
+      energies[j] += np.mean(etemp[50000:])
+      magnetzn[j] += np.abs(np.mean(mtemp[50000:]))
 
 energies = energies/thrds
 magnetzn = magnetzn/thrds
