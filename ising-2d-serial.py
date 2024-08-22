@@ -65,20 +65,47 @@ class walker:
       return np.sum(self.config)
 
 #################################################################
-gpts = 100 #temp grid
+gpts = 30 #temp grid
 N = 16 #lattice sites
-steps = 40000 #time steps
+steps = 100000 #time steps
 wait = 1 #time between checking moves
 
-energies = np.zeros(steps)
+temps = np.linspace(1.5,4.5,gpts)
 
-lattice = walker(N,2.)
+energies = np.zeros(gpts)
+magnetzn = np.zeros(gpts)
 
-for i in range(steps):
+for j in range(gpts):
 
-   lattice.move()
-   energies[i] = lattice.energy()/N**2.
+   lattice = walker(N,temps[j])
 
-fig=plt.figure(figsize=(12,8))
-plt.scatter(np.arange(1,steps+1,1),energies)
-plt.show()
+   etemp = np.zeros(steps)
+   mtemp = np.zeros(steps)
+
+   print("Temp = %.2f" % temps[j])
+
+   for i in range(steps):
+
+      lattice.move()
+      etemp[i] = lattice.energy()/N**2.
+      mtemp[i] = lattice.magnetization()/N**2.
+
+   energies[j] = np.mean(etemp[50000:])
+   magnetzn[j] = np.abs(np.mean(mtemp[50000:]))
+
+fig, (ax1, ax2) = plt.subplots(1,2,figsize=(24,16))
+
+ax1.scatter(temps,energies,s=50,color='darkblue')
+ax2.scatter(temps,magnetzn,s=50,color='orangered')
+
+ax1.set_xlabel(r'$T$ ($k_B^{-1}$)',fontsize=25)
+ax1.set_ylabel(r'$E/N$ ($k_B^{-1})$',fontsize=25)
+ax1.tick_params(axis='both',direction='in',length=4,width=1,labelsize=20)
+
+ax2.set_xlabel(r'$T$ ($k_B^{-1}$)',fontsize=25)
+ax2.set_ylabel(r'$|M|/N$',fontsize=25)
+ax2.tick_params(axis='both',direction='in',length=4,width=1,labelsize=20)
+
+plt.tight_layout()
+plt.savefig('serial-results.pdf',bbox_inches='tight')
+#plt.show()
